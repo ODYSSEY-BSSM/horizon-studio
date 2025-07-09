@@ -8,6 +8,8 @@ import {
   MiniMap,
   Background,
   BackgroundVariant,
+  ConnectionMode,
+  ConnectionLineType,
   type Node,
   type Edge,
   type Connection,
@@ -34,21 +36,20 @@ export const RoadmapCanvas: React.FC<RoadmapCanvasProps> = memo(({ roadmapId: _r
     nodes: storeNodes,
     edges: storeEdges,
     setNodes: setStoreNodes,
-    setEdges: setStoreEdges,
     addEdge: addStoreEdge,
     setSelectedNode,
   } = useRoadmapStore();
 
-  const [nodes, setNodes, onNodesChange] = useNodesState([]);
-  const [edges, setEdges, onEdgesChange] = useEdgesState([]);
+  const [nodes, setNodes, onNodesChange] = useNodesState([] as Node[]);
+  const [edges, setEdges, onEdgesChange] = useEdgesState([] as Edge[]);
 
   // Initialize with store data once
   useEffect(() => {
-    setNodes(storeNodes);
+    setNodes(storeNodes as unknown as Node[]);
   }, [storeNodes.length]); // Only depend on length to avoid infinite loops
 
   useEffect(() => {
-    setEdges(storeEdges);
+    setEdges(storeEdges as unknown as Edge[]);
   }, [storeEdges.length]); // Only depend on length to avoid infinite loops
 
   const onConnect = useCallback(
@@ -79,7 +80,7 @@ export const RoadmapCanvas: React.FC<RoadmapCanvasProps> = memo(({ roadmapId: _r
 
       console.log('새 연결 생성:', newEdge);
       setEdges((eds) => {
-        const updatedEdges = addEdge(newEdge as Edge, eds);
+        const updatedEdges = addEdge(newEdge as Edge, eds as unknown as Edge[]);
         console.log('업데이트된 연결들:', updatedEdges);
         return updatedEdges;
       });
@@ -109,7 +110,7 @@ export const RoadmapCanvas: React.FC<RoadmapCanvasProps> = memo(({ roadmapId: _r
       event.stopPropagation();
       const confirmed = window.confirm('이 연결을 삭제하시겠습니까?');
       if (confirmed) {
-        setEdges((eds) => eds.filter((e) => e.id !== edge.id));
+        setEdges((eds) => (eds as unknown as Edge[]).filter((e) => e.id !== edge.id));
         console.log('연결선 삭제됨:', edge.id);
       }
     },
@@ -119,12 +120,12 @@ export const RoadmapCanvas: React.FC<RoadmapCanvasProps> = memo(({ roadmapId: _r
   const onNodeDragStop = useCallback(
     (_event: React.MouseEvent, node: Node) => {
       // Update node position in store only if position actually changed
-      const currentNode = nodes.find((n) => n.id === node.id);
+      const currentNode = (nodes as unknown as Node[]).find((n) => n.id === node.id);
       if (
         currentNode &&
         (currentNode.position.x !== node.position.x || currentNode.position.y !== node.position.y)
       ) {
-        setStoreNodes(nodes.map((n) => (n.id === node.id ? { ...n, position: node.position } : n)));
+        setStoreNodes((nodes as unknown as Node[]).map((n) => (n.id === node.id ? { ...n, position: node.position } : n)));
       }
     },
     [nodes, setStoreNodes]
@@ -135,8 +136,8 @@ export const RoadmapCanvas: React.FC<RoadmapCanvasProps> = memo(({ roadmapId: _r
   return (
     <div style={{ width: '100%', height: '100%', minHeight: '500px' }}>
       <ReactFlow
-        nodes={nodes}
-        edges={edges}
+        nodes={nodes as unknown as Node[]}
+        edges={edges as unknown as Edge[]}
         onNodesChange={onNodesChange}
         onEdgesChange={onEdgesChange}
         onConnect={onConnect}
@@ -146,15 +147,15 @@ export const RoadmapCanvas: React.FC<RoadmapCanvasProps> = memo(({ roadmapId: _r
         onEdgeClick={onEdgeClick}
         onEdgeDoubleClick={onEdgeDoubleClick}
         nodeTypes={memoizedNodeTypes}
-        fitView={nodes.length > 0}
+        fitView={(nodes as unknown as Node[]).length > 0}
         attributionPosition="top-right"
         defaultViewport={{ x: 0, y: 0, zoom: 1 }}
         minZoom={0.2}
         maxZoom={4}
         deleteKeyCode="Delete"
         multiSelectionKeyCode="Shift"
-        connectionMode="loose"
-        connectionLineType="smoothstep"
+        connectionMode={ConnectionMode.Loose}
+        connectionLineType={ConnectionLineType.SmoothStep}
         connectionLineStyle={{
           stroke: '#4f46e5',
           strokeWidth: 2,
@@ -191,7 +192,7 @@ export const RoadmapCanvas: React.FC<RoadmapCanvasProps> = memo(({ roadmapId: _r
       </div>
 
       {/* Debug info for empty canvas */}
-      {nodes.length === 0 && (
+      {(nodes as unknown as Node[]).length === 0 && (
         <div
           style={{
             position: 'absolute',
