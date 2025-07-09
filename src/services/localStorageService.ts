@@ -21,8 +21,15 @@ const getCurrentTimestamp = (): string => new Date().toISOString();
 // Roadmap Storage Operations
 export const roadmapStorage = {
   getAll: (): RoadmapResponse[] => {
-    const data = localStorage.getItem(STORAGE_KEYS.roadmaps);
-    return data ? JSON.parse(data) : [];
+    try {
+      const data = localStorage.getItem(STORAGE_KEYS.roadmaps);
+      if (!data) return [];
+      const parsed = JSON.parse(data);
+      return Array.isArray(parsed) ? parsed : [];
+    } catch (error) {
+      console.error('Error parsing roadmaps from localStorage:', error);
+      return [];
+    }
   },
 
   getById: (id: string): RoadmapResponse | null => {
@@ -115,8 +122,15 @@ export const roadmapStorage = {
 // Node Storage Operations
 export const nodeStorage = {
   getAll: (): NodeResponse[] => {
-    const data = localStorage.getItem(STORAGE_KEYS.nodes);
-    return data ? JSON.parse(data) : [];
+    try {
+      const data = localStorage.getItem(STORAGE_KEYS.nodes);
+      if (!data) return [];
+      const parsed = JSON.parse(data);
+      return Array.isArray(parsed) ? parsed : [];
+    } catch (error) {
+      console.error('Error parsing nodes from localStorage:', error);
+      return [];
+    }
   },
 
   getByRoadmap: (roadmapId: string): NodeResponse[] => {
@@ -176,13 +190,30 @@ export const nodeStorage = {
 // Directory Storage Operations
 export const directoryStorage = {
   getAll: (): DirectoryResponse[] => {
-    const data = localStorage.getItem(STORAGE_KEYS.directories);
-    return data ? JSON.parse(data) : [];
+    try {
+      const data = localStorage.getItem(STORAGE_KEYS.directories);
+      if (!data) return [];
+      const parsed = JSON.parse(data);
+      return Array.isArray(parsed) ? parsed : [];
+    } catch (error) {
+      console.error('Error parsing directories from localStorage:', error);
+      return [];
+    }
   },
 
   getRootContents: (): DirectoryResponse[] => {
     const directories = directoryStorage.getAll();
     const roadmaps = roadmapStorage.getAll();
+
+    if (!Array.isArray(directories)) {
+      console.warn('directories is not an array in getRootContents:', directories);
+      return [];
+    }
+
+    if (!Array.isArray(roadmaps)) {
+      console.warn('roadmaps is not an array in getRootContents:', roadmaps);
+      return [];
+    }
 
     return directories
       .filter((d) => !d.parentId)
