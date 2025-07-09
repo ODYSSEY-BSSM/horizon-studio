@@ -1,6 +1,7 @@
 export interface RoadmapRequest {
   title: string;
   description?: string;
+  categories?: string[];
   thumbnail?: File;
   directoryId?: string;
 }
@@ -9,6 +10,7 @@ export interface RoadmapResponse {
   id: string;
   title: string;
   description?: string;
+  categories?: string[];
   thumbnail?: string;
   directoryId?: string;
   createdAt: string;

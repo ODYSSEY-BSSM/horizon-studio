@@ -38,7 +38,17 @@ const api = axios.create({
 api.interceptors.response.use(
   (response) => response,
   (error) => {
-    console.error('API Error:', error.response?.data || error.message);
+    console.error('API Error Details:', {
+      status: error.response?.status,
+      statusText: error.response?.statusText,
+      data: error.response?.data,
+      headers: error.response?.headers,
+      config: {
+        url: error.config?.url,
+        method: error.config?.method,
+        data: error.config?.data,
+      }
+    });
     if (error.response?.status === 404) {
       console.warn('API endpoint not found, falling back to local mode');
       // Could implement fallback to local mode here if needed
@@ -56,29 +66,33 @@ export const roadmapApi = {
 
     console.log('Creating roadmap with data:', data);
 
-    // Use FormData only if there's a file upload, otherwise use JSON
+    // Backend expects multipart/form-data with roadmap JSON and thumbnail file
+    const formData = new FormData();
+    
+    // Create roadmap object as required by backend
+    const roadmapData = {
+      title: data.title,
+      description: data.description || '',
+      categories: [], // Required field, empty array as default
+      directoryId: data.directoryId || null,
+    };
+    
+    formData.append('roadmap', JSON.stringify(roadmapData));
+    
+    // Backend requires thumbnail field - use empty blob if no file provided
     if (data.thumbnail instanceof File) {
-      const formData = new FormData();
-      formData.append('title', data.title);
-      if (data.description) formData.append('description', data.description);
       formData.append('thumbnail', data.thumbnail);
-      if (data.directoryId) formData.append('directoryId', data.directoryId);
-
-      console.log('FormData entries:', Array.from(formData.entries()));
-      const response = await api.post('/roadmap/create', formData);
-      return response.data;
     } else {
-      // Send as JSON when no file upload
-      const jsonData = {
-        title: data.title,
-        description: data.description,
-        directoryId: data.directoryId,
-      };
-      
-      console.log('JSON data:', jsonData);
-      const response = await api.post('/roadmap/create', jsonData);
-      return response.data;
+      // Create empty file for thumbnail if none provided
+      const emptyFile = new Blob([''], { type: 'application/octet-stream' });
+      formData.append('thumbnail', emptyFile, 'empty.txt');
     }
+
+    console.log('FormData entries:', Array.from(formData.entries()));
+    console.log('Roadmap JSON:', roadmapData);
+    
+    const response = await api.post('/roadmap/create', formData);
+    return response.data;
   },
 
   update: async (id: string, data: Partial<RoadmapRequest>): Promise<RoadmapResponse> => {
