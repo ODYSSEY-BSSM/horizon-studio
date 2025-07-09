@@ -73,6 +73,14 @@ export const mockNodeApi = {
   create: async (roadmapId: string, data: NodeRequest): Promise<NodeResponse> => {
     await delay();
 
+    // Check if roadmap exists before creating node
+    const roadmaps = roadmapStorage.getAll();
+    const roadmapExists = roadmaps.some(r => r.id === roadmapId);
+    
+    if (!roadmapExists) {
+      throw new Error(`Cannot create node: Roadmap with id ${roadmapId} not found`);
+    }
+
     // Mark roadmap as accessed
     roadmapStorage.updateLastAccessed(roadmapId);
 

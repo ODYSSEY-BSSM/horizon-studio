@@ -180,7 +180,7 @@ export const RoadmapManager: React.FC<RoadmapManagerProps> = ({ onSelectRoadmap 
   };
 
   const handleSelectRoadmap = (roadmapId: string) => {
-    const roadmap = roadmaps.find((r) => r.id === roadmapId);
+    const roadmap = roadmaps?.find((r) => r.id === roadmapId);
     if (roadmap) {
       setCurrentRoadmap(roadmap);
       console.log('Selected roadmap:', roadmap); // Debug log
@@ -197,7 +197,7 @@ export const RoadmapManager: React.FC<RoadmapManagerProps> = ({ onSelectRoadmap 
 
   const handleEditRoadmap = (e: React.MouseEvent, roadmapId: string) => {
     e.stopPropagation();
-    const roadmap = roadmaps.find((r) => r.id === roadmapId);
+    const roadmap = roadmaps?.find((r) => r.id === roadmapId);
     if (!roadmap) return;
 
     const title = prompt('로드맵 제목 수정:', roadmap.title);
@@ -244,7 +244,7 @@ export const RoadmapManager: React.FC<RoadmapManagerProps> = ({ onSelectRoadmap 
 
       <RoadmapList>
         <AnimatePresence>
-          {!roadmaps || roadmaps.length === 0 ? (
+          {!roadmaps || !Array.isArray(roadmaps) || roadmaps.length === 0 ? (
             <EmptyState>
               <p>아직 로드맵이 없습니다.</p>
               <p>첫 번째 로드맵을 만들어 시작해보세요!</p>

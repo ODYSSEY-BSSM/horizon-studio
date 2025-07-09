@@ -26,7 +26,15 @@ export const useRoadmaps = () => {
 
   useEffect(() => {
     if (query.data) {
+      console.log('Setting roadmaps:', query.data);
       setRoadmaps(query.data);
+      
+      // Reset current roadmap if it doesn't exist in the loaded roadmaps
+      const { currentRoadmap, setCurrentRoadmap } = useRoadmapStore.getState();
+      if (currentRoadmap && !query.data.find(r => r.id === currentRoadmap.id)) {
+        console.log('Current roadmap not found in loaded roadmaps, resetting:', currentRoadmap.id);
+        setCurrentRoadmap(null);
+      }
     }
   }, [query.data, setRoadmaps]);
 
@@ -66,8 +74,9 @@ export const useNodes = (roadmapId: string) => {
       const reactFlowNodes = query.data.map(nodeResponseToReactFlowNode);
       console.log('Setting nodes:', reactFlowNodes); // Debug log
       setNodes(reactFlowNodes);
-    } else if (query.data === null || query.data === undefined) {
-      // API에서 null이나 undefined가 반환되면 빈 배열로 설정
+    } else {
+      // API에서 배열이 아닌 값이 반환되면 빈 배열로 설정
+      console.log('Data is not an array, setting empty array:', query.data);
       setNodes([]);
     }
   }, [query.data, setNodes, roadmapId]);

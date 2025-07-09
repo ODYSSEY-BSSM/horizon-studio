@@ -8,18 +8,19 @@ import type {
   DirectoryResponse,
 } from '../types/api';
 import { mockRoadmapApi, mockNodeApi, mockDirectoryApi } from './mockApi';
-import { initializeSampleData } from './localStorageService';
+import { initializeSampleData, clearAllData } from './localStorageService';
 
 // Check if we should use local mode
 const isLocalMode = import.meta.env.VITE_USE_LOCAL_API === 'true' || !import.meta.env.VITE_API_URL;
 
 // Initialize sample data if in local mode
 if (isLocalMode) {
+  clearAllData(); // Clear all data to fix ID mismatch
   initializeSampleData();
 }
 
 const api = axios.create({
-  baseURL: import.meta.env.VITE_API_URL || 'http://localhost:3000',
+  baseURL: import.meta.env.DEV ? '/api' : import.meta.env.VITE_API_URL || 'http://localhost:3000',
   timeout: 10000,
 });
 
@@ -49,9 +50,10 @@ export const roadmapApi = {
     if (data.thumbnail) formData.append('thumbnail', data.thumbnail);
     if (data.directoryId) formData.append('directoryId', data.directoryId);
 
-    const response = await api.post('/roadmap/create', formData, {
-      headers: { 'Content-Type': 'multipart/form-data' },
-    });
+    console.log('Creating roadmap with data:', data);
+    console.log('FormData entries:', Array.from(formData.entries()));
+
+    const response = await api.post('/roadmap/create', formData);
     return response.data;
   },
 

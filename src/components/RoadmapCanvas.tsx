@@ -125,7 +125,11 @@ export const RoadmapCanvas: React.FC<RoadmapCanvasProps> = memo(({ roadmapId: _r
         currentNode &&
         (currentNode.position.x !== node.position.x || currentNode.position.y !== node.position.y)
       ) {
-        setStoreNodes((nodes as unknown as Node[]).map((n) => (n.id === node.id ? { ...n, position: node.position } : n)));
+        setStoreNodes(
+          (nodes as unknown as Node[]).map((n) =>
+            n.id === node.id ? { ...n, position: node.position } : n
+          )
+        );
       }
     },
     [nodes, setStoreNodes]

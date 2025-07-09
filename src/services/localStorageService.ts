@@ -104,7 +104,11 @@ export const roadmapStorage = {
   },
 
   updateLastAccessed: (id: string): void => {
-    roadmapStorage.update(id, { lastAccessedAt: getCurrentTimestamp() });
+    try {
+      roadmapStorage.update(id, { lastAccessedAt: getCurrentTimestamp() });
+    } catch (error) {
+      console.warn(`Failed to update last accessed time for roadmap ${id}:`, error);
+    }
   },
 };
 
@@ -233,8 +237,18 @@ export const directoryStorage = {
   },
 };
 
+// Clear all local storage data and reset
+export const clearAllData = () => {
+  localStorage.removeItem(STORAGE_KEYS.roadmaps);
+  localStorage.removeItem(STORAGE_KEYS.nodes);
+  localStorage.removeItem(STORAGE_KEYS.directories);
+  localStorage.removeItem(STORAGE_KEYS.lastId);
+  console.log('All local storage data cleared');
+};
+
 // Initialize with sample data if empty
 export const initializeSampleData = () => {
+  console.log('Initializing sample data, current roadmaps:', roadmapStorage.getAll().length);
   if (roadmapStorage.getAll().length === 0) {
     // Create sample roadmaps
     const sampleRoadmap1 = roadmapStorage.create({
