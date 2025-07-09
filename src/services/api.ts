@@ -54,17 +54,31 @@ export const roadmapApi = {
       return mockRoadmapApi.create(data);
     }
 
-    const formData = new FormData();
-    formData.append('title', data.title);
-    if (data.description) formData.append('description', data.description);
-    if (data.thumbnail) formData.append('thumbnail', data.thumbnail);
-    if (data.directoryId) formData.append('directoryId', data.directoryId);
-
     console.log('Creating roadmap with data:', data);
-    console.log('FormData entries:', Array.from(formData.entries()));
 
-    const response = await api.post('/roadmap/create', formData);
-    return response.data;
+    // Use FormData only if there's a file upload, otherwise use JSON
+    if (data.thumbnail instanceof File) {
+      const formData = new FormData();
+      formData.append('title', data.title);
+      if (data.description) formData.append('description', data.description);
+      formData.append('thumbnail', data.thumbnail);
+      if (data.directoryId) formData.append('directoryId', data.directoryId);
+
+      console.log('FormData entries:', Array.from(formData.entries()));
+      const response = await api.post('/roadmap/create', formData);
+      return response.data;
+    } else {
+      // Send as JSON when no file upload
+      const jsonData = {
+        title: data.title,
+        description: data.description,
+        directoryId: data.directoryId,
+      };
+      
+      console.log('JSON data:', jsonData);
+      const response = await api.post('/roadmap/create', jsonData);
+      return response.data;
+    }
   },
 
   update: async (id: string, data: Partial<RoadmapRequest>): Promise<RoadmapResponse> => {
