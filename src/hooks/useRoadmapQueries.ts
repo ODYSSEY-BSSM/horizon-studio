@@ -62,10 +62,13 @@ export const useNodes = (roadmapId: string) => {
 
   useEffect(() => {
     console.log('useNodes effect:', { roadmapId, enabled: !!roadmapId, data: query.data }); // Debug log
-    if (query.data) {
+    if (query.data && Array.isArray(query.data)) {
       const reactFlowNodes = query.data.map(nodeResponseToReactFlowNode);
       console.log('Setting nodes:', reactFlowNodes); // Debug log
       setNodes(reactFlowNodes);
+    } else if (query.data === null || query.data === undefined) {
+      // API에서 null이나 undefined가 반환되면 빈 배열로 설정
+      setNodes([]);
     }
   }, [query.data, setNodes, roadmapId]);
 
