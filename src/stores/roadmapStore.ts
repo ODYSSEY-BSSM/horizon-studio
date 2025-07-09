@@ -51,7 +51,7 @@ export const useRoadmapStore = create<RoadmapStore>()(
 
       setCurrentRoadmap: (roadmap) => set({ currentRoadmap: roadmap }, false, 'setCurrentRoadmap'),
 
-      setRoadmaps: (roadmaps) => set({ roadmaps }, false, 'setRoadmaps'),
+      setRoadmaps: (roadmaps) => set({ roadmaps: Array.isArray(roadmaps) ? roadmaps : [] }, false, 'setRoadmaps'),
 
       addRoadmap: (roadmap) =>
         set((state) => ({ roadmaps: [...state.roadmaps, roadmap] }), false, 'addRoadmap'),
@@ -81,7 +81,7 @@ export const useRoadmapStore = create<RoadmapStore>()(
           'deleteRoadmap'
         ),
 
-      setNodes: (nodes) => set({ nodes }, false, 'setNodes'),
+      setNodes: (nodes) => set({ nodes: Array.isArray(nodes) ? nodes : [] }, false, 'setNodes'),
 
       addNode: (node) => set((state) => ({ nodes: [...state.nodes, node] }), false, 'addNode'),
 
@@ -109,7 +109,7 @@ export const useRoadmapStore = create<RoadmapStore>()(
           'deleteNode'
         ),
 
-      setEdges: (edges) => set({ edges }, false, 'setEdges'),
+      setEdges: (edges) => set({ edges: Array.isArray(edges) ? edges : [] }, false, 'setEdges'),
 
       addEdge: (edge) => set((state) => ({ edges: [...state.edges, edge] }), false, 'addEdge'),
 

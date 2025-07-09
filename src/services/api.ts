@@ -11,7 +11,17 @@ import { mockRoadmapApi, mockNodeApi, mockDirectoryApi } from './mockApi';
 import { initializeSampleData, clearAllData } from './localStorageService';
 
 // Check if we should use local mode
-const isLocalMode = import.meta.env.VITE_USE_LOCAL_API === 'true' || !import.meta.env.VITE_API_URL;
+const useLocalApiEnv = import.meta.env.VITE_USE_LOCAL_API;
+const apiUrlEnv = import.meta.env.VITE_API_URL;
+const isLocalMode = useLocalApiEnv === 'true' || !apiUrlEnv;
+
+console.log('Environment check:', {
+  VITE_USE_LOCAL_API: useLocalApiEnv,
+  VITE_API_URL: apiUrlEnv,
+  isLocalMode,
+  DEV: import.meta.env.DEV,
+  PROD: import.meta.env.PROD
+});
 
 // Initialize sample data if in local mode
 if (isLocalMode) {

@@ -45,11 +45,21 @@ export const RoadmapCanvas: React.FC<RoadmapCanvasProps> = memo(({ roadmapId: _r
 
   // Initialize with store data once
   useEffect(() => {
-    setNodes(storeNodes as unknown as Node[]);
+    if (Array.isArray(storeNodes)) {
+      setNodes(storeNodes as unknown as Node[]);
+    } else {
+      console.warn('storeNodes is not an array:', storeNodes);
+      setNodes([]);
+    }
   }, [storeNodes.length]); // Only depend on length to avoid infinite loops
 
   useEffect(() => {
-    setEdges(storeEdges as unknown as Edge[]);
+    if (Array.isArray(storeEdges)) {
+      setEdges(storeEdges as unknown as Edge[]);
+    } else {
+      console.warn('storeEdges is not an array:', storeEdges);
+      setEdges([]);
+    }
   }, [storeEdges.length]); // Only depend on length to avoid infinite loops
 
   const onConnect = useCallback(
@@ -110,7 +120,13 @@ export const RoadmapCanvas: React.FC<RoadmapCanvasProps> = memo(({ roadmapId: _r
       event.stopPropagation();
       const confirmed = window.confirm('이 연결을 삭제하시겠습니까?');
       if (confirmed) {
-        setEdges((eds) => (eds as unknown as Edge[]).filter((e) => e.id !== edge.id));
+        setEdges((eds) => {
+          if (!Array.isArray(eds)) {
+            console.warn('edges is not an array in onEdgeDoubleClick:', eds);
+            return [];
+          }
+          return eds.filter((e) => e.id !== edge.id);
+        });
         console.log('연결선 삭제됨:', edge.id);
       }
     },
@@ -120,13 +136,18 @@ export const RoadmapCanvas: React.FC<RoadmapCanvasProps> = memo(({ roadmapId: _r
   const onNodeDragStop = useCallback(
     (_event: React.MouseEvent, node: Node) => {
       // Update node position in store only if position actually changed
-      const currentNode = (nodes as unknown as Node[]).find((n) => n.id === node.id);
+      if (!Array.isArray(nodes)) {
+        console.warn('nodes is not an array in onNodeDragStop:', nodes);
+        return;
+      }
+      
+      const currentNode = nodes.find((n) => n.id === node.id);
       if (
         currentNode &&
         (currentNode.position.x !== node.position.x || currentNode.position.y !== node.position.y)
       ) {
         setStoreNodes(
-          (nodes as unknown as Node[]).map((n) =>
+          nodes.map((n) =>
             n.id === node.id ? { ...n, position: node.position } : n
           )
         );
